@@ -1,0 +1,54 @@
+{
+  "lastProject": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783932004311",
+  "lastAction": "terminal_run",
+  "turns": [
+    {
+      "timestamp": "2026-07-13T06:28:14.793Z",
+      "input": "otomatik oluştur basit bir test api",
+      "action": "auto_build",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/proje-1783496416552"
+    },
+    {
+      "timestamp": "2026-07-13T07:52:51.017Z",
+      "input": "otomatik oluştur basit bir test api",
+      "action": "auto_build",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/proje-1783496416552"
+    },
+    {
+      "timestamp": "2026-07-13T07:55:24.205Z",
+      "input": "otomatik oluştur basit bir test api",
+      "action": "auto_build",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783929171022"
+    },
+    {
+      "timestamp": "2026-07-13T08:08:25.326Z",
+      "input": "otomatik oluştur basit bir test api",
+      "action": "auto_build",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/proje-1783496416552"
+    },
+    {
+      "timestamp": "2026-07-13T08:40:04.308Z",
+      "input": "ben 10 hakinda bisi biliyomusun",
+      "action": "auto_build",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783930105327"
+    },
+    {
+      "timestamp": "2026-07-13T08:40:21.126Z",
+      "input": "internette ara ben 10",
+      "action": "web_search",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783932004311"
+    },
+    {
+      "timestamp": "2026-07-13T08:40:55.396Z",
+      "input": "internette ara bugün akhisarda hava durumu nasil",
+      "action": "web_search",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783932004311"
+    },
+    {
+      "timestamp": "2026-07-13T13:54:35.388Z",
+      "input": "instagram aç",
+      "action": "terminal_run",
+      "project": "/data/data/com.termux/files/home/Jarvis-v6/projects/project-1783932004311"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "workflows": {
+    "list-files-and-search-nodejs-best-practices": {
+      "steps": [
+        {
+          "target": "terminal",
+          "input": "ls"
+        },
+        {
+          "target": "web_search",
+          "input": "node.js best practices"
+        }
+      ],
+      "createdAt": "2026-07-13T06:04:45.475Z"
+    }
+  }
+}

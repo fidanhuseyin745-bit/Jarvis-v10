@@ -1,0 +1,19 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+backups/
+
+*.bak
+*.log
+
+projects/*/.git/
+
+# Backup / eski sürümler
+*.bak
+*.bak*
+*.v1
+*.v2
+*.v3
+*.v4
