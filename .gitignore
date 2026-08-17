@@ -13,6 +13,9 @@ projects/*/.git/
 # Çalışma zamanında oluşturulan sohbet geçmişi
 engine/memory.json
 
+# Kullanıcının öğrettiği bilgiler (yerleşik facts.json hariç)
+knowledge/data/learned.json
+
 # Backup / eski sürümler
 *.bak
 *.bak*

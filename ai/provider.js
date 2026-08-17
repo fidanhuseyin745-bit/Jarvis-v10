@@ -1,33 +1,17 @@
 "use strict";
 
-require("dotenv").config();
+const JarvisAI = require("./jarvisAI");
 
-const JarvisAI=require("./jarvisAI");
+class Provider {
 
-class Provider{
-
-    constructor(){
-
-        this.provider=(process.env.AI_PROVIDER||"jarvis").toLowerCase();
-
-        this.jarvis=new JarvisAI();
-
+    constructor() {
+        this.jarvis = new JarvisAI();
     }
 
-    async ask(prompt){
-
-        switch(this.provider){
-
-            case "jarvis":
-                return await this.jarvis.ask(prompt);
-
-            default:
-                return await this.jarvis.ask(prompt);
-
-        }
-
+    async ask(prompt, context) {
+        return await this.jarvis.ask(prompt, context);
     }
 
 }
 
-module.exports=new Provider();
+module.exports = new Provider();

@@ -2,10 +2,11 @@
 
 class Study{
 
-    async run(engine,prompt){
+    async run(engine,prompt,context){
 
         return await engine.ai.ask(
-            "Bir öğretmen gibi cevap ver:\n\n"+prompt
+            "Bir öğretmen gibi cevap ver:\n\n"+prompt,
+            context
         );
 
     }

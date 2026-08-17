@@ -15,7 +15,10 @@ class Engine {
         prompt = String(prompt || "").trim();
         if (!prompt) return "Bir şey yazmadın.";
 
-        const answer = await Brain.think(this, prompt);
+        const recent = await this.memory.recent(6);
+        const context = { recent };
+
+        const answer = await Brain.think(this, prompt, context);
 
         await this.memory.save(prompt, answer);
 

@@ -2,10 +2,11 @@
 
 class Research{
 
-    async run(engine,prompt){
+    async run(engine,prompt,context){
 
         return await engine.ai.ask(
-            "Konuyu derinlemesine araştır:\n\n"+prompt
+            "Konuyu derinlemesine araştır:\n\n"+prompt,
+            context
         );
 
     }

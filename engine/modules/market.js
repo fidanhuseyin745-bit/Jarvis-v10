@@ -2,10 +2,11 @@
 
 class Market{
 
-    async run(engine,prompt){
+    async run(engine,prompt,context){
 
         return await engine.ai.ask(
-            "Bir finans uzmanı gibi cevap ver:\n\n"+prompt
+            "Bir finans uzmanı gibi cevap ver:\n\n"+prompt,
+            context
         );
 
     }

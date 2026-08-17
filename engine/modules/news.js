@@ -12,7 +12,7 @@ const learner=require("../../reasoner/learningEngine");
 
 class News{
 
-    async run(engine,prompt){
+    async run(engine,prompt,context){
 
         const result=await web.search(prompt);
 
@@ -22,7 +22,7 @@ class News{
             !Array.isArray(result.results) ||
             result.results.length===0
         ){
-            return "Bu konu hakkında haber bulunamadı.";
+            return "Bu konu hakkında yerel bilgi tabanımda kayıt yok. Daha önce konuştuğumuz bir konuysa hatırlayabilirim.";
         }
 
         const filtered=relevance.filter(
@@ -31,7 +31,7 @@ class News{
         );
 
         if(filtered.length===0){
-            return "Bu konu hakkında yeterince alakalı bilgi bulunamadı.";
+            return "Bu konu hakkında yeterince alakalı bilgi bulamadım.";
         }
 
         let report=reasoner.analyze(filtered);
@@ -44,7 +44,8 @@ class News{
 
         const aiAnswer=await reasoningAI.generate(
             prompt,
-            report
+            report,
+            context
         );
 
         if(aiAnswer)

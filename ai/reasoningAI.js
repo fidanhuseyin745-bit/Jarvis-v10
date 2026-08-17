@@ -1,15 +1,15 @@
 "use strict";
 
-const axios = require("axios");
-const aiConfig = require("../config/aiConfig");
+const LocalEngine = require("./localEngine");
 
 class ReasoningAI {
 
-    async generate(question, report) {
-        if (!report || !report.best || report.best.length === 0)
-            return null;
+    constructor() {
+        this.engine = new LocalEngine();
+    }
 
-        if (!aiConfig.isConfigured)
+    async generate(question, report, context) {
+        if (!report || !report.best || report.best.length === 0)
             return null;
 
         let facts = "";
@@ -18,55 +18,9 @@ class ReasoningAI {
             facts += (i + 1) + ". " + x.text + "\n";
         });
 
-        const prompt = `
-Soru:
-${question}
+        const prompt = "Aşağıdaki bilgileri kullanarak '" + question + "' sorusuna kısa ve doğal bir cevap yaz:\n\n" + facts;
 
-Bilgiler:
-${facts}
-
-Yalnızca bu bilgileri kullanarak kısa ve doğal bir cevap yaz.
-`;
-
-        const headers = { "Content-Type": "application/json" };
-        if (aiConfig.key) {
-            headers.Authorization = `Bearer ${aiConfig.key}`;
-        }
-
-        try {
-
-            const res = await axios.post(
-                aiConfig.url,
-                {
-                    model: aiConfig.model,
-                    messages: [
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ]
-                },
-                {
-                    timeout: 30000,
-                    headers
-                }
-            );
-
-            if (!res.data || !res.data.choices || !res.data.choices.length)
-                return null;
-
-            return res.data.choices[0].message.content;
-
-        } catch (err) {
-
-            if (process.env.DEBUG === "true") {
-                console.log("ReasoningAI hatası: " + (err.response?.data ? JSON.stringify(err.response.data) : err.message));
-            }
-
-            return null;
-
-        }
-
+        return await this.engine.ask(prompt, context);
     }
 
 }

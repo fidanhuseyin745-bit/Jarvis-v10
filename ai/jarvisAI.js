@@ -1,51 +1,15 @@
 "use strict";
 
-const axios = require("axios");
-const config = require("../config/aiConfig");
+const LocalEngine = require("./localEngine");
 
 class JarvisAI {
 
-    async ask(prompt) {
+    constructor() {
+        this.engine = new LocalEngine();
+    }
 
-        if (!config.url) {
-
-            throw new Error(
-                "AI_API_URL tanımlı değil."
-            );
-
-        }
-
-        const headers = {
-            "Content-Type": "application/json"
-        };
-
-        if (config.key) {
-            headers.Authorization =
-                `Bearer ${config.key}`;
-        }
-
-        const res = await axios.post(
-            config.url,
-            {
-                model: config.model,
-                messages: [
-                    {
-                        role: "user",
-                        content: String(prompt || "")
-                    }
-                ]
-            },
-            {
-                headers,
-                timeout: 60000
-            }
-        );
-
-        return (
-            res.data?.choices?.[0]?.message?.content ||
-            ""
-        );
-
+    async ask(prompt, context) {
+        return await this.engine.ask(prompt, context);
     }
 
 }
