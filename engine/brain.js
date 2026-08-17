@@ -31,7 +31,10 @@ class Brain {
     _isLocal(prompt) {
         const lower = String(prompt || "").toLowerCase();
 
-        if (knowledge.search(lower)) {
+        const priceQueries = ["fiyat", "ne kadar", "kaç", "kuru", "price", "değer"];
+        const isPriceQuery = priceQueries.some(q => lower.includes(q));
+
+        if (knowledge.search(lower) && !isPriceQuery) {
             return true;
         }
 

@@ -7,6 +7,10 @@ const mathApi = require("../api/mathApi");
 const unitsApi = require("../api/unitsApi");
 const timeApi = require("../api/timeApi");
 const textApi = require("../api/textApi");
+const phoneApi = require("../api/phoneApi");
+const wikiApi = require("../api/wikiApi");
+const weatherApi = require("../api/weatherApi");
+const newsApi = require("../api/newsApi");
 
 class LocalEngine {
 
@@ -25,6 +29,9 @@ class LocalEngine {
         if (!text) {
             return "Bir şey yazmadın.";
         }
+
+        const phoneResult = await phoneApi.execute(text);
+        if (phoneResult && !this._looksLikeOtherQuery(lower)) return phoneResult;
 
         if (this._isMath(lower)) {
             const result = mathApi.evaluateExpr(text) || this._evalMath(text);
@@ -49,12 +56,66 @@ class LocalEngine {
             if (phrase) return phrase;
         }
 
+        if (this._isWebRequest(lower)) {
+            const webResult = await this._tryWeb(text, lower);
+            if (webResult) return webResult;
+        }
+
         const fact = knowledge.search(lower);
         if (fact) {
             return this._formatFact(fact, lower);
         }
 
+        if (!this._isWebRequest(lower)) {
+            const webResult = await this._tryWeb(text, lower);
+            if (webResult) return webResult;
+        }
+
         return this._generate(text, lower, context);
+    }
+
+    _isWebRequest(lower) {
+        return lower.includes("haber") ||
+            lower.includes("hava durumu") || lower.includes("hava nasıl") ||
+            lower.includes("hava kaç") || lower.includes("sıcaklık kaç") ||
+            lower.includes("araştır") || lower.includes("wikipedia") || lower.includes("vikipedi");
+    }
+
+    async _tryWeb(text, lower) {
+        if (lower.includes("haber")) {
+            const news = await newsApi.getNews();
+            if (news) return news;
+        }
+
+        if (lower.includes("hava durumu") || lower.includes("hava nasıl") ||
+            lower.includes("hava kaç") || lower.includes("sıcaklık kaç")) {
+            const locMatch = text.match(/(?:istanbul|ankara|izmir|bursa|antalya|adana|konya|gaziantep|kayseri|eskişehir|samsun|trabzon)/i);
+            const loc = locMatch ? locMatch[0] : "istanbul";
+            const weather = await weatherApi.getWeather(loc);
+            if (weather) return weather;
+        }
+
+        if (lower.includes("araştır") || lower.includes("wikipedia") || lower.includes("vikipedi") ||
+            lower.includes("kimdir bilgi") || lower.includes("hakkında bilgi")) {
+            const q = this._extractResearchQuery(text, lower);
+            if (q) {
+                const wiki = await wikiApi.search(q);
+                if (wiki) return wiki;
+                return "🔍 '" + q + "' için internetten bilgi bulamadım. Daha farklı bir terim dene.";
+            }
+        }
+
+        return null;
+    }
+
+    _extractResearchQuery(text, lower) {
+        let m = text.match(/(?:araştır|wikipedia|vikipedi)[:\s]+(.+)/i);
+        if (m) return m[1].replace(/[?.!]+$/, "").trim();
+        m = text.match(/(.+?)\s+(?:hakkında bilgi|kimdir bilgi)/i);
+        if (m) return m[1].trim();
+        m = text.match(/(.+?)\s+araştır/i);
+        if (m) return m[1].trim();
+        return null;
     }
 
     _formatInference(inf) {
@@ -86,6 +147,16 @@ class LocalEngine {
 
     _capitalize(s) {
         return String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
+    }
+
+    _looksLikeOtherQuery(lower) {
+        if (lower.includes("kaç") || lower.includes("kac")) return true;
+        if (lower.includes("derece")) return true;
+        if (lower.includes("nedir") || lower.includes("kimdir")) return true;
+        if (lower.includes("nasıl") || lower.includes("neden")) return true;
+        if (/[0-9].*[+\-*/]/.test(lower) || /[+\-*/].*[0-9]/.test(lower)) return true;
+        if (lower.includes("üzeri") || lower.includes("karekök") || lower.includes("yüzde")) return true;
+        return false;
     }
 
     _generate(text, lower, context) {
@@ -300,15 +371,17 @@ class LocalEngine {
             "",
             "Yapabildiklerim:",
             "💬 Sohbet — normal konuş",
-            "📚 Bilgi — 'ışık hızı nedir', 'atatürk kimdir', 'enflasyon nedir' gibi sorular",
+            "📚 Bilgi — 'ışık hızı nedir', 'atatürk kimdir', 'enflasyon nedir'",
             "🧮 Matematik — '15 * 24', '5 üzeri 3', 'karekök 81', '7 asal mı', '250'nin %20'si'",
             "📐 Birim çeviri — '12 kg kaç gram', '100 derece c kaç f', '5 km kaç metre'",
             "🕐 Saat/Tarih — 'saat kaç', 'bugün ne', '15.06.1990 doğumluyum kaç yaşımdayım'",
             "🌐 Çıkarım — 'türkiyenin başkenti', 'japonyanın para birimi'",
+            "📱 Telefon — 'youtube aç', '0555 123 45 67 ara', 'wifi kapat', 'el feneri aç', 'müzik aç', 'alarm kur'",
+            "🌍 İnternet — 'einstein araştır', 'istanbul hava durumu', 'bugün haberler var mı'",
             "🧠 Öğrenme — 'öğret: ...' ile bilgi verir, sayı/içerik cümlelerini otomatik not alırım",
             "🗑️ Unutma — 'unut' ile öğrendiklerimi temizlerim",
-            "📰 Haber/Piyasa/Araştırma — ilgili modüller (varsa)",
             "",
+            "Telefon komutları için Jarvis companion uygulaması (bridge) gereklidir.",
             "Hafızam var, geçmiş konuşmalarımızı hatırlıyorum."
         ];
         return lines.join("\n");

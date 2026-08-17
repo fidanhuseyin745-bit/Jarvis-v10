@@ -151,3 +151,40 @@ test("time age calculation", async () => {
     assert.ok(reply.includes("yaş"));
     assert.ok(reply.includes("1990"));
 });
+
+test("phone app open detection (fallback)", async () => {
+    const reply = await engine.ask("youtube aç");
+    assert.ok(reply.includes("bridge") || reply.includes("köprü") || reply.includes("youtube"));
+});
+
+test("phone call detection (fallback)", async () => {
+    const reply = await engine.ask("0555 123 45 67 ara");
+    assert.ok(reply.includes("köprü") || reply.includes("bridge") || reply.includes("ara"));
+});
+
+test("phone wifi setting detection (fallback)", async () => {
+    const reply = await engine.ask("wifi kapat");
+    assert.ok(reply.includes("köprü") || reply.includes("bridge") || reply.includes("Wi-Fi") || reply.includes("Ayar"));
+});
+
+test("phone flashlight detection (fallback)", async () => {
+    const reply = await engine.ask("el feneri aç");
+    assert.ok(reply.includes("köprü") || reply.includes("bridge") || reply.includes("fener"));
+});
+
+test("phone alarm detection (fallback)", async () => {
+    const reply = await engine.ask("sabah 7ye alarm kur");
+    assert.ok(reply.includes("köprü") || reply.includes("bridge") || reply.includes("Alarm"));
+});
+
+test("units not misclassified as phone open", async () => {
+    const reply = await engine.ask("2 kg kaç gram");
+    assert.ok(reply.includes("gram"));
+    assert.ok(!reply.includes("instagram"));
+});
+
+test("temperature not misclassified as phone open", async () => {
+    const reply = await engine.ask("100 derece c kaç f");
+    assert.ok(reply.includes("212"));
+    assert.ok(!reply.includes("facebook"));
+});
