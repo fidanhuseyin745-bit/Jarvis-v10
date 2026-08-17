@@ -1,22 +1,24 @@
 "use strict";
 
-const axios=require("axios");
-const config=require("../config/config");
+const axios = require("axios");
+const aiConfig = require("../config/aiConfig");
 
-class ReasoningAI{
+class ReasoningAI {
 
-    async generate(question,report){
-
-        if(!report || !report.best || report.best.length===0)
+    async generate(question, report) {
+        if (!report || !report.best || report.best.length === 0)
             return null;
 
-        let facts="";
+        if (!aiConfig.isConfigured)
+            return null;
 
-        report.best.forEach((x,i)=>{
-            facts+=(i+1)+". "+x.text+"\n";
+        let facts = "";
+
+        report.best.forEach((x, i) => {
+            facts += (i + 1) + ". " + x.text + "\n";
         });
 
-        const prompt=`
+        const prompt = `
 Soru:
 ${question}
 
@@ -26,32 +28,40 @@ ${facts}
 Yalnızca bu bilgileri kullanarak kısa ve doğal bir cevap yaz.
 `;
 
-        try{
+        const headers = { "Content-Type": "application/json" };
+        if (aiConfig.key) {
+            headers.Authorization = `Bearer ${aiConfig.key}`;
+        }
 
-            const res=await axios.post(
-                config.aiUrl,
+        try {
+
+            const res = await axios.post(
+                aiConfig.url,
                 {
-                    model:config.model,
-                    messages:[
+                    model: aiConfig.model,
+                    messages: [
                         {
-                            role:"user",
-                            content:prompt
+                            role: "user",
+                            content: prompt
                         }
                     ]
                 },
                 {
-                    timeout:30000
+                    timeout: 30000,
+                    headers
                 }
             );
 
-            console.log(res.data);
+            if (!res.data || !res.data.choices || !res.data.choices.length)
+                return null;
 
             return res.data.choices[0].message.content;
 
-        }catch(err){
+        } catch (err) {
 
-            console.log("AI ERROR:");
-            console.log(err.response?.data || err.message);
+            if (process.env.DEBUG === "true") {
+                console.log("ReasoningAI hatası: " + (err.response?.data ? JSON.stringify(err.response.data) : err.message));
+            }
 
             return null;
 
@@ -61,4 +71,4 @@ Yalnızca bu bilgileri kullanarak kısa ve doğal bir cevap yaz.
 
 }
 
-module.exports=new ReasoningAI();
+module.exports = new ReasoningAI();

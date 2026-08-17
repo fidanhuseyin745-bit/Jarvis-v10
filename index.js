@@ -1,39 +1,37 @@
 "use strict";
 
-const readline=require("readline");
-const jarvis=require("./core/jarvis");
-const serviceManager=require("./services/serviceManager");
+const readline = require("readline");
+const jarvis = require("./core/jarvis");
+const serviceManager = require("./services/serviceManager");
 
-serviceManager.boot();
+async function main() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        prompt: "Jarvis > "
+    });
 
-const rl=readline.createInterface({
-    input:process.stdin,
-    output:process.stdout,
-    prompt:"Jarvis > "
-});
+    rl.on("line", async (line) => {
+        line = line.trim();
 
-console.log("🤖 Jarvis v7 Başlatıldı");
+        if (line === "exit") {
+            rl.close();
+            process.exit(0);
+        }
 
-rl.prompt();
+        try {
+            await jarvis.execute(line);
+        } catch (err) {
+            console.log("❌ " + err.message);
+        }
 
-rl.on("line",async(line)=>{
+        rl.prompt();
+    });
 
-    line=line.trim();
+    serviceManager.boot().finally(() => {
+        console.log("🤖 Jarvis v10 Başlatıldı");
+        rl.prompt();
+    });
+}
 
-    if(line==="exit"){
-        process.exit(0);
-    }
-
-    try{
-
-        await jarvis.execute(line);
-
-    }catch(err){
-
-        console.log("❌ "+err.message);
-
-    }
-
-    rl.prompt();
-
-});
+main();

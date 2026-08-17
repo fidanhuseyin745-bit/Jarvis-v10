@@ -10,6 +10,9 @@ backups/
 
 projects/*/.git/
 
+# Çalışma zamanında oluşturulan sohbet geçmişi
+engine/memory.json
+
 # Backup / eski sürümler
 *.bak
 *.bak*

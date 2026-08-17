@@ -1,76 +1,66 @@
 "use strict";
 
-const { spawn, execSync } = require("child_process");
+const { spawn } = require("child_process");
 const fs = require("fs");
+const http = require("http");
 
-class ServiceManager{
+class ServiceManager {
 
-    isRunning(port){
-
-        try{
-
-            execSync(`curl -s http://127.0.0.1:${port}`);
-
-            return true;
-
-        }catch{
-
-            return false;
-
-        }
-
+    isRunning(port) {
+        return new Promise((resolve) => {
+            const req = http.get(
+                `http://127.0.0.1:${port}`,
+                () => resolve(true)
+            );
+            req.setTimeout(300, () => {
+                req.destroy();
+                resolve(false);
+            });
+            req.on("error", () => resolve(false));
+        });
     }
 
-    start(name,dir,file,port){
-
-        if(this.isRunning(port)){
-
-            console.log("✅ "+name+" zaten çalışıyor.");
+    async start(name, dir, file, port) {
+        if (!fs.existsSync(dir + "/" + file)) {
             return;
-
         }
 
-        if(!fs.existsSync(dir+"/"+file)){
-
-            console.log("❌ "+name+" bulunamadı.");
+        if (await this.isRunning(port)) {
+            console.log("✅ " + name + " zaten çalışıyor.");
             return;
-
         }
 
-        console.log("🚀 "+name+" başlatılıyor...");
+        console.log("🚀 " + name + " başlatılıyor...");
 
-        const child=spawn("node",[file],{
-
-            cwd:dir,
-            detached:true,
-            stdio:"ignore"
-
+        const child = spawn("node", [file], {
+            cwd: dir,
+            detached: true,
+            stdio: "ignore"
         });
 
         child.unref();
-
     }
 
-    boot(){
+    async boot() {
+        if (process.env.AUTO_START_SERVICES === "false") {
+            return;
+        }
 
-        this.start(
+        await this.start(
             "Web API",
-            process.env.HOME+"/Jarvis-v6/webserver",
+            (process.env.HOME || "") + "/Jarvis-v6/webserver",
             "index.js",
             3000
         );
 
-        this.start(
+        await this.start(
             "AI API",
-            process.env.HOME+"/Jarvis-AI",
+            (process.env.HOME || "") + "/Jarvis-AI",
             "server.js",
             9000
         );
-
-        console.log("✅ Servis kontrolü tamamlandı.");
-
     }
 
 }
 
-module.exports=new ServiceManager();
+module.exports = new ServiceManager();

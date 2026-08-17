@@ -4,25 +4,22 @@ const Brain=require("./brain");
 const Memory=require("./memory");
 const Coder=require("../ai/coder");
 
-class Engine{
+class Engine {
 
-    constructor(){
-
-        this.ai=new Coder();
-
-        this.memory=new Memory();
-
+    constructor() {
+        this.ai = new Coder();
+        this.memory = new Memory();
     }
 
-    async reply(prompt){
+    async reply(prompt) {
+        prompt = String(prompt || "").trim();
+        if (!prompt) return "Bir şey yazmadın.";
 
-        prompt=String(prompt||"").trim();
+        const answer = await Brain.think(this, prompt);
 
-        if(!prompt)
-            return "Bir şey yazmadın.";
+        await this.memory.save(prompt, answer);
 
-        return await Brain.think(this,prompt);
-
+        return answer;
     }
 
 }

@@ -35,6 +35,10 @@ class Executor{
                     result=await modules.chat.run(engine,prompt);
                     break;
 
+                case "research":
+                    result=await modules.research.run(engine,prompt);
+                    break;
+
                 case "compare":
                 case "explain":
                     break;

@@ -14,12 +14,18 @@ class DecisionEngine{
             phone:0,
             coding:0,
             explain:0,
-            compare:0
+            compare:0,
+            research:0
         };
 
         let intent="chat";
 
         const has=(...words)=>words.some(w=>prompt.includes(w));
+
+        if(has("araştır","research","incele","analiz et")){
+            score.research+=130;
+            intent="research";
+        }
 
         if(has("nedir","nasıl","neden","niye","kim","hangi","kaç","ne zaman","anlat","açıkla")){
             score.web+=70;
