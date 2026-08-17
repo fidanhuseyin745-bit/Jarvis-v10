@@ -11,20 +11,51 @@ class KnowledgeBase {
         this.dir = path.join(__dirname, "data");
         this.factsFile = path.join(this.dir, "facts.json");
         this.learnedFile = path.join(this.dir, "learned.json");
+        this.datasetsDir = path.join(__dirname, "datasets");
 
         if (!fs.existsSync(this.factsFile)) {
             builtin.install(this.dir);
         }
 
         this.facts = {};
-        this.learned = {};
+        this.learned = [];
 
         this._load();
+        this._loadDatasets();
+    }
+
+    _loadDatasets() {
+        let added = 0;
+        try {
+            const files = fs.readdirSync(this.datasetsDir)
+                .filter(f => f.endsWith(".json"));
+
+            for (const file of files) {
+                try {
+                    const data = JSON.parse(
+                        fs.readFileSync(path.join(this.datasetsDir, file), "utf8")
+                    );
+                    for (const key of Object.keys(data)) {
+                        if (!this.facts[key]) {
+                            this.facts[key] = { text: data[key], type: "dataset" };
+                            added++;
+                        }
+                    }
+                } catch {
+                }
+            }
+        } catch {
+        }
     }
 
     _load() {
         try {
             this.facts = JSON.parse(fs.readFileSync(this.factsFile, "utf8"));
+            for (const key of Object.keys(this.facts)) {
+                if (typeof this.facts[key] === "string") {
+                    this.facts[key] = { text: this.facts[key], type: "builtin" };
+                }
+            }
         } catch {
             this.facts = {};
         }
@@ -54,6 +85,13 @@ class KnowledgeBase {
             }
         }
 
+        const reverseKeys = Object.keys(this.facts)
+            .filter(k => k.includes(q))
+            .sort((a, b) => a.length - b.length);
+        if (reverseKeys.length) {
+            return this.facts[reverseKeys[0]];
+        }
+
         for (const entry of this.learned) {
             const keys = (entry.keys || []).map(k => k.toLowerCase());
             for (const k of keys) {
@@ -64,15 +102,24 @@ class KnowledgeBase {
         }
 
         const scored = [];
-        for (const entry of this.learned) {
-            const pattern = String(entry.pattern || "").toLowerCase();
-            const words = pattern.split(/\s+/).filter(w => w.length > 2);
-
+        for (const key of Object.keys(this.facts)) {
+            const words = key.split(/\s+/).filter(w => w.length > 2);
             let hits = 0;
             for (const w of words) {
                 if (q.includes(w)) hits++;
             }
+            if (hits > 0) {
+                scored.push({ key, score: hits / Math.max(words.length, 1) });
+            }
+        }
 
+        for (const entry of this.learned) {
+            const pattern = String(entry.pattern || "").toLowerCase();
+            const words = pattern.split(/\s+/).filter(w => w.length > 2);
+            let hits = 0;
+            for (const w of words) {
+                if (q.includes(w)) hits++;
+            }
             if (hits > 0) {
                 scored.push({ entry, score: hits / Math.max(words.length, 1) });
             }
@@ -80,8 +127,13 @@ class KnowledgeBase {
 
         scored.sort((a, b) => b.score - a.score);
 
-        if (scored.length && scored[0].score >= 0.4) {
-            return { text: scored[0].entry.response, type: "learned" };
+        if (scored.length && scored[0].score >= 0.5) {
+            if (scored[0].key) {
+                return this.facts[scored[0].key];
+            }
+            if (scored[0].entry) {
+                return { text: scored[0].entry.response, type: "learned" };
+            }
         }
 
         return null;

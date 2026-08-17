@@ -47,7 +47,7 @@ test("looks up bitcoin facts", async () => {
 test("help lists capabilities", async () => {
     const reply = await engine.ask("neler yapabilirsin");
     assert.ok(reply.includes("Sohbet"));
-    assert.ok(reply.includes("Hesaplama"));
+    assert.ok(reply.includes("Matematik"));
     assert.ok(reply.includes("Öğrenme"));
 });
 
@@ -79,4 +79,75 @@ test("forgets learned facts on command", async () => {
 test("rejects non-math input safely", async () => {
     const reply = await engine.ask("alert(1)");
     assert.ok(typeof reply === "string");
+});
+
+test("math power calculation", async () => {
+    const reply = await engine.ask("5 üzeri 3");
+    assert.ok(reply.includes("125"));
+});
+
+test("math percentage", async () => {
+    const reply = await engine.ask("250nin yüzde 20si");
+    assert.ok(reply.includes("50"));
+});
+
+test("math prime detection", async () => {
+    const prime = await engine.ask("7 asal mı");
+    assert.ok(prime.includes("asal"));
+});
+
+test("units length conversion", async () => {
+    const reply = await engine.ask("5 km kaç metre eder");
+    assert.ok(reply.includes("5.000") || reply.includes("5000"));
+});
+
+test("units weight conversion", async () => {
+    const reply = await engine.ask("2 kg kaç gram");
+    assert.ok(reply.includes("2.000") || reply.includes("2000"));
+});
+
+test("units temperature conversion", async () => {
+    const reply = await engine.ask("100 derece c kaç f");
+    assert.ok(reply.includes("212"));
+});
+
+test("inference capital city", async () => {
+    const reply = await engine.ask("türkiyenin başkenti neresi");
+    assert.ok(reply.includes("Ankara"));
+});
+
+test("inference currency", async () => {
+    const reply = await engine.ask("japonyanın para birimi ne");
+    assert.ok(reply.includes("Japon Yeni") || reply.includes("JPY"));
+});
+
+test("inference language", async () => {
+    const reply = await engine.ask("almanyanın resmi dili ne");
+    assert.ok(reply.includes("Almanca"));
+});
+
+test("knowledge geography lookup", async () => {
+    const reply = await engine.ask("paris nerede");
+    assert.ok(reply.includes("Fransa") || reply.includes("başkent"));
+});
+
+test("knowledge science lookup", async () => {
+    const reply = await engine.ask("yerçekimi nedir");
+    assert.ok(reply.includes("9.81") || reply.includes("kütle"));
+});
+
+test("knowledge history lookup", async () => {
+    const reply = await engine.ask("atatürk kimdir");
+    assert.ok(reply.includes("Atatürk") || reply.includes("Cumhuriyet"));
+});
+
+test("knowledge math lookup", async () => {
+    const reply = await engine.ask("pisagor teoremi nedir");
+    assert.ok(reply.includes("dik") || reply.includes("hipotenüs") || reply.includes("Pisagor"));
+});
+
+test("time age calculation", async () => {
+    const reply = await engine.ask("15.06.1990 doğumluyum kaç yaşımdayım");
+    assert.ok(reply.includes("yaş"));
+    assert.ok(reply.includes("1990"));
 });

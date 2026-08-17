@@ -1,6 +1,12 @@
 "use strict";
 
 const knowledge = require("../knowledge/knowledgeBase");
+const nlu = require("../nlp/nlu");
+const inference = require("../engine/inference");
+const mathApi = require("../api/mathApi");
+const unitsApi = require("../api/unitsApi");
+const timeApi = require("../api/timeApi");
+const textApi = require("../api/textApi");
 
 class LocalEngine {
 
@@ -21,12 +27,26 @@ class LocalEngine {
         }
 
         if (this._isMath(lower)) {
-            const math = this._evalMath(text);
-            if (math !== null) return math;
+            const result = mathApi.evaluateExpr(text) || this._evalMath(text);
+            if (result) return result;
         }
 
-        if (this._isTimeQuery(lower)) {
-            return this._timeAnswer(lower);
+        const funcMath = mathApi.evaluate(text);
+        if (funcMath) return funcMath;
+
+        const units = unitsApi.convert(text);
+        if (units) return units;
+
+        const timeAns = timeApi.answer(text);
+        if (timeAns) return timeAns;
+
+        const textAns = textApi.detect(text);
+        if (textAns) return textAns;
+
+        const inferred = inference.resolve(text);
+        if (inferred) {
+            const phrase = this._formatInference(inferred);
+            if (phrase) return phrase;
         }
 
         const fact = knowledge.search(lower);
@@ -35,6 +55,37 @@ class LocalEngine {
         }
 
         return this._generate(text, lower, context);
+    }
+
+    _formatInference(inf) {
+        const { relation, subject, value } = inf;
+        const subj = this._normalizeSubject(subject);
+
+        if (relation === "başkenti" || relation === "başkent") {
+            return `${this._capitalize(subj)}'nın başkenti ${value}.`;
+        }
+        if (relation === "nüfusu" || relation === "nüfus") {
+            return `${this._capitalize(subj)} hakkında: ${value}.`;
+        }
+        if (relation === "para birimi") {
+            return `${this._capitalize(subj)}'nın para birimi ${value}.`;
+        }
+        if (relation === "resmi dili" || relation === "dili") {
+            return `${this._capitalize(subj)}'nın resmi dili ${value}.`;
+        }
+
+        return value && typeof value === "string" ? value : null;
+    }
+
+    _normalizeSubject(subject) {
+        let s = String(subject || "").trim();
+        s = s.replace(/(nın|nin|nun|nün|nın|in|ın|un|ün)$/i, "");
+        s = s.replace(/(lar|ler)$/i, "");
+        return s.trim();
+    }
+
+    _capitalize(s) {
+        return String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
     }
 
     _generate(text, lower, context) {
@@ -113,38 +164,36 @@ class LocalEngine {
     }
 
     _question(text, lower, context) {
-        const subject = this._extractSubject(lower);
+        const analysis = nlu.analyze(text);
+        const subject = analysis.subject || this._extractSubject(lower);
 
-        if (subject) {
-            const parts = [];
-            parts.push("Bildiğim kadarıyla:");
-
-            if (lower.includes("nedir") || lower.includes("kimdir")) {
-                parts.push(subject + " hakkında şu bilgileri verebilirim:");
-                parts.push("• Temel tanımı ve genel kullanımı");
-                parts.push("• Önemli özellikleri");
-                parts.push("• İlgili bağlamlar");
-            } else if (lower.includes("nasıl")) {
-                parts.push(subject + " ile ilgili adımlar:");
-                parts.push("• Önce konuyu netleştir");
-                parts.push("• Gerekli araçları/hazırlığı yap");
-                parts.push("• Adım adım uygula");
-            } else if (lower.includes("neden") || lower.includes("niçin")) {
-                parts.push(subject + " hakkında olası nedenler:");
-                parts.push("• Temel mekanizması");
-                parts.push("• Etkileyen faktörler");
-            } else {
-                parts.push(subject + " hakkında daha fazla bilgi istiyorsan, bana öğretebilirsin.");
-            }
-
-            if (context && context.recent && context.recent.length > 1) {
-                parts.push("\n(Önceki konuşmamızı hatırlıyorum.)");
-            }
-
-            return parts.join("\n");
+        if (!subject) {
+            return "Bu ilginç bir soru. Tam olarak neyi merak ettiğini biraz daha açabilir misin?";
         }
 
-        return "Bu ilginç bir soru. Tam olarak neyi merak ettiğini biraz daha açabilir misin?";
+        const related = knowledge.search(subject);
+        if (related && related.text) {
+            return related.text;
+        }
+
+        if (analysis.questionType === "definition") {
+            return `'${subject}' hakkında şu an bilgi tabanımda kayıt yok. Bana 'öğret: ${subject} ...' ile bilgi verebilirsin, sonra hatırlarım.`;
+        }
+        if (analysis.questionType === "method") {
+            return `${subject} konusunda adım adım yardım edebilirim, ama önce hangi yöntemi istediğini netleştir.`;
+        }
+        if (analysis.questionType === "reason") {
+            return `${subject} konusunda olası nedenleri açıklayabilirim. Hangi yönüyle ilgileniyorsun?`;
+        }
+        if (analysis.questionType === "location") {
+            return `${subject} nerede olduğunu bilmiyorum. Bana öğretirsen kaydederim.`;
+        }
+
+        if (context && context.recent && context.recent.length > 1) {
+            return "Bu konu hakkında daha önce konuşmuştuk gibi. Biraz daha açabilir misin?";
+        }
+
+        return `'${subject}' hakkında kesin bir bilgim yok ama konuşmaya devam edebiliriz. Bana öğretmek istersen 'öğret:' ile başla.`;
     }
 
     _extractSubject(lower) {
@@ -244,18 +293,21 @@ class LocalEngine {
     }
 
     _help() {
+        const stats = knowledge.list();
         const lines = [
-            "Ben Jarvis. İşte yapabildiklerim:",
+            "Ben Jarvis. Tamamen bu cihazda, kendi motorumla çalışırım.",
+            `📚 Bilgi tabanım: ${stats.builtin} hazır kayıt + ${stats.learned} öğrendiğim.`,
             "",
-            "💬 Sohbet — Benimle normal konuş",
-            "📚 Bilgi — 'bitcoin nedir', 'ışık hızı' gibi sorular sor",
-            "🧮 Hesaplama — '15 * 24' veya '100 / 4' gibi matematik işlemleri",
-            "🕐 Saat/Tarih — 'saat kaç', 'bugün ne'",
-            "🧠 Öğrenme — 'öğret: ...' ile bana bilgi ver",
-            "🗑️ Unutma — 'unut' ile öğrendiklerimi temizle",
-            "📰 Haber — 'bugün haberleri'",
-            "📈 Piyasa — 'bitcoin fiyatı'",
-            "🔍 Araştırma — '... araştır'",
+            "Yapabildiklerim:",
+            "💬 Sohbet — normal konuş",
+            "📚 Bilgi — 'ışık hızı nedir', 'atatürk kimdir', 'enflasyon nedir' gibi sorular",
+            "🧮 Matematik — '15 * 24', '5 üzeri 3', 'karekök 81', '7 asal mı', '250'nin %20'si'",
+            "📐 Birim çeviri — '12 kg kaç gram', '100 derece c kaç f', '5 km kaç metre'",
+            "🕐 Saat/Tarih — 'saat kaç', 'bugün ne', '15.06.1990 doğumluyum kaç yaşımdayım'",
+            "🌐 Çıkarım — 'türkiyenin başkenti', 'japonyanın para birimi'",
+            "🧠 Öğrenme — 'öğret: ...' ile bilgi verir, sayı/içerik cümlelerini otomatik not alırım",
+            "🗑️ Unutma — 'unut' ile öğrendiklerimi temizlerim",
+            "📰 Haber/Piyasa/Araştırma — ilgili modüller (varsa)",
             "",
             "Hafızam var, geçmiş konuşmalarımızı hatırlıyorum."
         ];
@@ -263,10 +315,7 @@ class LocalEngine {
     }
 
     _formatFact(fact, lower) {
-        if (fact.type === "function") {
-            return this._timeAnswer(lower);
-        }
-        return fact.text;
+        return fact.text || "Bu konuda bilgim var ama tam olarak ifade edemedim.";
     }
 
     _isMath(lower) {
