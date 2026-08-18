@@ -60,9 +60,34 @@ jobs:
         run: chmod +x android/gradlew
         if: ${{ hashFiles('android/gradlew') != '' }}
 
-      - name: APK derle (debug)
+      - name: Gradle ayarları (zaman aşımı + önbellek)
+        run: |
+          cat > android/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx3072m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          org.gradle.configureondemand=false
+          org.gradle.caching=true
+          org.gradle.internal.http.connectionTimeout=120000
+          org.gradle.internal.http.socketTimeout=120000
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+
+      - name: APK derle (debug) — retry ile
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon -Pandroid.enableR8=false
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "=== Derleme denemesi $i ==="
+            if ./gradlew assembleDebug --no-daemon; then
+              echo "✅ Derleme başarılı (deneme $i)"
+              exit 0
+            fi
+            echo "❌ Deneme $i başarısız, 15s bekleniyor..."
+            sleep 15
+          done
+          echo "Tüm denemeler başarısız"
+          exit 1
 
       - name: APK'yı taşı
         run: |
