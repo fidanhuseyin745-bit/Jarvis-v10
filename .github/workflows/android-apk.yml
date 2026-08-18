@@ -43,10 +43,10 @@ jobs:
         with:
           packages: "platform-tools platforms;android-34 build-tools;34.0.0"
 
-      - name: npm bağımlılıkları + Capacitor CLI
+      - name: npm bağımlılıkları + Capacitor 6 CLI (Java 17 uyumlu)
         run: |
           npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@^6 @capacitor/cli@^6 @capacitor/android@^6
 
       - name: Web varlıklarını doğrula (syntax)
         run: npm run syntax
@@ -55,6 +55,39 @@ jobs:
         run: |
           npx cap add android || true
           npx cap sync android
+
+      - name: Kotlin çakışması için build.gradle yaması
+        run: |
+          # app/build.gradle içine kotlin sürüm zorlaması + packaging exclude ekle
+          GRA="android/app/build.gradle"
+          if [ -f "$GRA" ]; then
+            python3 - <<'PY'
+            import re, io
+            p = "android/app/build.gradle"
+            s = open(p).read()
+            inj = """
+            configurations.all {
+                resolutionStrategy {
+                    force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+                    force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+                    force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+                }
+            }
+            android {
+                packagingOptions {
+                    exclude 'META-INF/INDEX.LIST'
+                    exclude 'META-INF/io.netty.versions.properties'
+                }
+            }
+            """
+            if "resolutionStrategy" not in s:
+                s = s.rstrip() + "\n" + inj + "\n"
+                open(p, "w").write(s)
+                print("build.gradle yamalandı")
+            else:
+                print("build.gradle zaten yamalı")
+            PY
+          fi
 
       - name: gradle izinleri
         run: chmod +x android/gradlew
