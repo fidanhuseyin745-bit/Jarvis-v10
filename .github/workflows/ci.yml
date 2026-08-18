@@ -28,10 +28,22 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Syntax check
+      - name: Syntax check (CommonJS source only)
         run: |
-          find . -path ./node_modules -prune -o -name "*.js" -print | \
-            xargs -I{} node --check {}
+          set -e
+          # Sadece Jarvis'in kendi CommonJS kaynağını denetle.
+          # projects/ kullanıcı tarafından üretilmiş ESM/vite/React örnekleri içerir
+          # (export/import söz dizimi CommonJS node --check ile uyumsuz).
+          for f in api ai commands config core engine knowledge services self test *.js; do
+            [ -e "$f" ] || continue
+            if [ -d "$f" ]; then
+              find "$f" -name "*.js" -not -path "*/node_modules/*" -print0 | \
+                xargs -0 -I{} node --check {}
+            else
+              node --check "$f"
+            fi
+          done
+          echo "Syntax check passed."
 
       - name: Run tests
         env:
