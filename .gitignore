@@ -22,3 +22,10 @@ projects/*/.git/
 projects/
 memory/reminders.json
 
+# Capacitor / Android build çıktıları (workflow'ta üretilir)
+android/
+android-output/
+*.apk
+*.aab
+output/
+

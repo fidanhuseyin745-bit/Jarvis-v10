@@ -1,0 +1,35 @@
+{
+  "name": "JARVIS",
+  "short_name": "JARVIS",
+  "description": "Yapay zeka + skill kütüphanesi kişisel asistan",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04070d",
+  "theme_color": "#ffcc00",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/jarvis.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/jarvis-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sohbet",
+      "url": "/?q=chat",
+      "icons": [{ "src": "/icons/jarvis.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}

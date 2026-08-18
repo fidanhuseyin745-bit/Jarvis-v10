@@ -194,7 +194,89 @@ body::after {
 .log::-webkit-scrollbar { width: 6px; }
 .log::-webkit-scrollbar-thumb { background: rgba(255, 204, 0, 0.4); }
 
+/* === Mobil cihazlar (telefon) === */
 @media (max-width: 900px) {
-  .panel { display: none; }
-  .chat-wrap { left: 20px; right: 20px; }
+  /* paneller mobilde gizli (butonla açılır) */
+  .panel {
+    top: 56px;
+    bottom: auto;
+    width: auto;
+    left: 10px;
+    right: 10px;
+    max-height: 60vh;
+    display: none;
+  }
+  .panel.open { display: block; }
+  .panel.right { left: 10px; }
+
+  /* köşe çerçeveleri mobilde küçük */
+  .corner { width: 36px; height: 36px; }
+
+  .topbar { height: 48px; padding: 0 14px; }
+  .brand { font-size: 16px; letter-spacing: 4px; }
+  .clock { font-size: 12px; }
+
+  /* panel açma butonu */
+  .panel-toggle {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  /* sohbet alanı — altta sabit, tam genişlik */
+  .chat-wrap {
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0 10px 10px;
+  }
+  .log { margin-bottom: 10px; padding: 14px; border: none; border-radius: 0; }
+  .log .msg { font-size: 15px; }
+
+  .form {
+    position: fixed;
+    bottom: 8px;
+    left: 10px;
+    right: 10px;
+    gap: 8px;
+  }
+  .form input { font-size: 16px; padding: 12px 14px; }
+  .form button { padding: 0 16px; font-size: 13px; }
+
+  /* log, formun altında kalmayacak şekilde yukarı kaydır */
+  .chat-wrap .log { margin-bottom: 64px; }
+
+  /* güvenli alan (notch) */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* panel açma butonu (mobilde görünür) */
+.panel-toggle {
+  display: none;
+  background: rgba(255, 204, 0, 0.12);
+  border: 1px solid rgba(255, 204, 0, 0.4);
+  color: #ffcc00;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+@media (max-width: 900px) {
+  .panel-toggle { display: inline-flex; }
+}
+
+/* kapatma butonu (panellerde) */
+.panel-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #ffcc00;
+  font-size: 18px;
+  cursor: pointer;
 }

@@ -99,6 +99,41 @@ npm test
 npm run syntax
 ```
 
+## 📱 Telefona Kurulum (Android APK)
+
+Jarvis'in HUD arayüzü bir **PWA**'dır ve **GitHub Actions otomatik APK** üretir.
+
+### Otomatik APK derleme (en kolay yol)
+
+1. GitHub repo → **Actions** sekmesi → **Android APK** workflow
+2. **Run workflow**'a bas (veya `public/` değişikliğinde otomatik çalışır)
+3. Derleme bitince run sayfasının en altındaki **Artifacts** → `JARVIS-android-apk`'yi indir
+4. ZIP'i aç → `JARVIS-debug.apk`'yi telefona gönder
+5. Telefonda **Ayarlar → Uygulamalar → Bilinmeyen kaynaklar** iznini aç, APK'ya dokunup kur
+
+> APK, Jarvis HUD'unu bağımsız bir Android uygulamasına (Capacitor) paketler.
+
+### Uygulama sunucuya nasıl bağlanır?
+
+APK bir arayüz kabuğudur; Jarvis'in skill motoru bir Node sunucusu çalıştırır. İki seçenek:
+
+**A) Termux ile telefonda (tamamen bağımsız, internet gerekmez):**
+```bash
+pkg install nodejs git
+git clone https://github.com/fidanhuseyin745-bit/Jarvis-v10
+cd Jarvis-v10
+npm install
+node webserver/index.js
+```
+Sonra Jarvis uygulamasını aç → ayarlardan sunucu adresini `http://127.0.0.1:3000` yap.
+
+**B) Kendi sunucunda çalıştır, telefondan bağlan:**
+Sunucuda `node webserver/index.js` çalıştır, telefonda uygulama sunucu adresine sunucu IP'sini gir.
+
+### PWA olarak kurma (APK olmadan)
+
+Tarayıcıda Jarvis'i aç → menü → **Ana ekrana ekle**. Tam ekran, ikonlu uygulama gibi çalışır, offline önbellek aktiftir.
+
 ## Lisans
 
 MIT

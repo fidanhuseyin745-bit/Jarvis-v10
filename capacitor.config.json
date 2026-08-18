@@ -1,0 +1,14 @@
+{
+  "appId": "dev.jarvis.app",
+  "appName": "JARVIS",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

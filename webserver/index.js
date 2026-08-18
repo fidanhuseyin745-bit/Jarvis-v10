@@ -12,13 +12,21 @@ const PORT = process.env.JARVIS_PORT || process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- Statik dosyalar (JARVIS HUD arayüzü) ---
-app.use(express.static(require("path").join(__dirname, "..", "public")));
+// --- Statik dosyalar (JARVIS HUD arayüzü + PWA) ---
+const pub = require("path").join(__dirname, "..", "public");
+app.use(express.static(pub, {
+    setHeaders: (res, path) => {
+        // service worker ve manifest tarayıcı tarafından önbelleğe alınmamalı
+        if (path.endsWith("sw.js") || path.endsWith("manifest.json")) {
+            res.setHeader("Cache-Control", "no-cache");
+        }
+    }
+}));
 
 // --- Ana sayfa HUD'a yönlendirir ---
 app.get("/", (req, res) => {
     if (req.headers.accept && req.headers.accept.includes("text/html")) {
-        return res.sendFile(require("path").join(__dirname, "..", "public", "index.html"));
+        return res.sendFile(require("path").join(pub, "index.html"));
     }
     ok(res, {
         name: "Jarvis API",

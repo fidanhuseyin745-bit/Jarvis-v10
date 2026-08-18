@@ -1,0 +1,93 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/**"
+      - "webserver/**"
+      - "skills/**"
+      - "config/**"
+      - "capacitor.config.json"
+      - ".github/workflows/android-apk.yml"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Release APK (imzalı) derle"
+        required: false
+        default: "false"
+        type: string
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Java 17 kur (Android Gradle için)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-34 build-tools;34.0.0"
+
+      - name: npm bağımlılıkları + Capacitor CLI
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Web varlıklarını doğrula (syntax)
+        run: npm run syntax
+
+      - name: Capacitor Android projesini oluştur
+        run: |
+          npx cap add android || true
+          npx cap sync android
+
+      - name: gradle izinleri
+        run: chmod +x android/gradlew
+        if: ${{ hashFiles('android/gradlew') != '' }}
+
+      - name: APK derle (debug)
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon -Pandroid.enableR8=false
+
+      - name: APK'yı taşı
+        run: |
+          mkdir -p output
+          find android -name "*.apk" -path "*debug*" -exec cp {} output/JARVIS-debug.apk \;
+          ls -lh output/
+
+      - name: APK artifact yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-android-apk
+          path: output/*.apk
+          retention-days: 30
+          compression-level: 0
+
+      - name: Özet
+        run: |
+          SIZE=$(du -h output/JARVIS-debug.apk | cut -f1)
+          echo "## 📱 JARVIS Android APK" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "APK başarıyla derlendi: **JARVIS-debug.apk** ($SIZE)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Telefona kurmak:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Bu run'un en altındaki **Artifacts** bölümünden \`JARVIS-android-apk\`'yi indir" >> $GITHUB_STEP_SUMMARY
+          echo "2. ZIP'i aç, \`JARVIS-debug.apk\`'yi telefona gönder" >> $GITHUB_STEP_SUMMARY
+          echo "3. Telefonda **Bilinmeyen kaynaklar** iznini aç ve APK'ya dokun" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Uygulama, telefonda yerel Jarvis sunucusuna (ör. Termux) bağlanır." >> $GITHUB_STEP_SUMMARY
