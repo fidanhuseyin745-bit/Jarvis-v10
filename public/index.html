@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS // v10</title>
+<link rel="stylesheet" href="/css/jarvis.css">
+</head>
+<body>
+
+<!-- JARVIS HUD arka planı -->
+<canvas id="hud"></canvas>
+
+<!-- Köşe çerçeveleri (Avengers ekran estetiği) -->
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<!-- Üst durum çubuğu -->
+<header class="topbar">
+  <div class="brand">J.A.R.V.I.S</div>
+  <div class="status">
+    <span id="aiState" class="pill pill-off">AI OFFLINE</span>
+    <span id="clock" class="clock">--:--:--</span>
+  </div>
+</header>
+
+<!-- Yetenek paneli -->
+<aside class="panel left">
+  <h3>SKILLS</h3>
+  <ul id="skillList" class="skill-list"></ul>
+</aside>
+
+<aside class="panel right">
+  <h3>SYSTEM</h3>
+  <pre id="sysInfo" class="sys-info">yükleniyor…</pre>
+</aside>
+
+<!-- Merkezi sohbet -->
+<main class="chat-wrap">
+  <div id="log" class="log"></div>
+  <form id="form" class="form">
+    <input id="input" autocomplete="off" placeholder="Komut girin… (ör: hava durumu istanbul)" autofocus>
+    <button type="submit">GÖNDER</button>
+  </form>
+</main>
+
+<script src="/js/hud.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

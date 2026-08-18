@@ -12,7 +12,20 @@ const PORT = process.env.JARVIS_PORT || process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- CORS (geliştirme kolaylığı için) ---
+// --- Statik dosyalar (JARVIS HUD arayüzü) ---
+app.use(express.static(require("path").join(__dirname, "..", "public")));
+
+// --- Ana sayfa HUD'a yönlendirir ---
+app.get("/", (req, res) => {
+    if (req.headers.accept && req.headers.accept.includes("text/html")) {
+        return res.sendFile(require("path").join(__dirname, "..", "public", "index.html"));
+    }
+    ok(res, {
+        name: "Jarvis API",
+        version: "10.0",
+        docs: "/meta, /health, /api/chat, /api/dispatch, /api/skills, /api/weather, /api/crypto, /api/currency, /api/translate, /api/wikipedia, /api/joke, /api/quote, /api/ip, /api/search, /api/github, /api/dictionary, /api/reminder, /api/system, /api/numbers"
+    });
+});
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
