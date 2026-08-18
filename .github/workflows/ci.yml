@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: "Detaylı log (debug)"
+        required: false
+        default: "false"
+        type: string
 
 jobs:
   build:
@@ -26,6 +33,16 @@ jobs:
 
       - name: Bağımlılıkları kur
         run: npm install
+
+      - name: Repo bilgisi
+        run: |
+          echo "## JARVIS CI" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Node: \`${{ matrix.node-version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`$GITHUB_SHA\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Dal: \`$GITHUB_REF_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Tetikleyici: \`$GITHUB_EVENT_NAME\`" >> $GITHUB_STEP_SUMMARY
+          node -e "const c=require('./config/constants'); console.log('Jarvis v'+c.VERSION+' — '+c.NAME)"
 
       - name: Sözdizimi kontrolü
         run: npm run syntax

@@ -1,0 +1,99 @@
+name: Demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      port:
+        description: "Web sunucu portu"
+        required: false
+        default: "3000"
+        type: string
+  workflow_call:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Bağımlılıkları kur
+        run: npm install
+
+      - name: Sözdizimi kontrolü
+        run: npm run syntax
+
+      - name: Birim testleri
+        run: npm test
+        env:
+          CI: "true"
+          NODE_ENV: test
+
+      - name: Web sunucusunu başlat
+        run: |
+          PORT=${{ github.event.inputs.port || '3000' }}
+          JARVIS_PORT=$PORT node webserver/index.js > server.log 2>&1 &
+          echo $! > server.pid
+          echo "## JARVIS Canlı Demo" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Sunucu port **$PORT** üzerinde başlatıldı." >> $GITHUB_STEP_SUMMARY
+          sleep 2
+
+      - name: Sağlık kontrolü (/health)
+        run: |
+          echo "### /health" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          curl -s http://127.0.0.1:${{ github.event.inputs.port || '3000' }}/health | tee -a $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Meta kontrolü (/meta)
+        run: |
+          echo "### /meta" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          curl -s http://127.0.0.1:${{ github.event.inputs.port || '3000' }}/meta | tee -a $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Skill testi — şaka
+        run: |
+          REPLY=$(curl -s -X POST http://127.0.0.1:${{ github.event.inputs.port || '3000' }}/api/joke \
+            -H 'Content-Type: application/json' -d '{}')
+          echo "Joke endpoint: $REPLY"
+
+      - name: Skill testi — kripto
+        run: |
+          REPLY=$(curl -s -X POST http://127.0.0.1:${{ github.event.inputs.port || '3000' }}/api/crypto \
+            -H 'Content-Type: application/json' -d '{"input":"bitcoin"}')
+          echo "Crypto endpoint cevabı:"
+          echo "$REPLY"
+          echo "### Kripto skill testi" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$REPLY" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: HUD sayfası kontrolü
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:${{ github.event.inputs.port || '3000' }}/)
+          echo "HUD HTTP durum: $STATUS"
+          if [ "$STATUS" != "200" ]; then exit 1; fi
+
+      - name: Sunucuyu durdur
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill $(cat server.pid) 2>/dev/null || true; fi
+          echo "### Sunucu logu (son satırlar)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -20 server.log >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
