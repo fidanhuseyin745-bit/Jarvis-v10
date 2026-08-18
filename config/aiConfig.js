@@ -2,22 +2,19 @@
 
 require("dotenv").config();
 
-const url =
-    process.env.AI_API_URL ||
-    process.env.AI_URL ||
-    "";
+/*
+ * Jarvis v10 artık tamamen yerel çalışır — dış AI API'si yoktur.
+ * Bu yapılandırma yalnızca geriye dönük uyumluluk için tutulur;
+ * aktif kod yolu config.url / config.key kullanmaz.
+ */
 
-const model =
-    process.env.AI_MODEL ||
-    process.env.MODEL ||
-    "jarvis-chat";
-
-const key =
-    process.env.AI_API_KEY ||
-    "";
+const model = process.env.AI_MODEL || "jarvis-local";
+const timeout = parseInt(process.env.AI_TIMEOUT, 10) || 60000;
 
 module.exports = {
-    url,
+    url: "",
     model,
-    key
+    key: "",
+    timeout,
+    isConfigured: false
 };

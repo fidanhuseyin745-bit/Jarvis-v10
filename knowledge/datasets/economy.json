@@ -1,0 +1,20 @@
+{
+    "ekonomi": "Ekonomi, mal ve hizmetlerin üretim, dağıtım ve tüketimini inceleyen sosyal bilimdir. Kıtlık ve kaynak tahsisi temel sorunudur.",
+    "enflasyon": "Enflasyon, genel fiyat seviyesinin sürekli artmasıdır. Satın alma gücü düşer. TÜFE ile ölçülür. Yüksek enflasyon ekonomiyi istikrarsızlaştırır.",
+    "faiz": "Faiz, borç verilene ödenen bedeldir. Yıllık % olarak ifade edilir. Merkez bankaları politika faizi ile para arzını kontrol eder.",
+    "gsyih": "GSYİH (Gayri Safi Yurt İçi Hasıla), bir ülkenin belirli dönemde ürettiği mal ve hizmetlerin toplam değeridir. Büyüme GSYİH artışıyla ölçülür.",
+    "borsa": "Borsa, menkul kıymetlerin (hisse senedi, tahvil) alınıp satıldığı organize piyasadır. İstanbul Borsası BIST ile bilinir.",
+    "hisse senedi": "Hisse senedi, bir şirketin sermayesine ortaklık sağlayan menkul kıymettir. Temettü ve değer artışı getirebilir.",
+    " tahvil": "Tahvil, devletin veya şirketin borçlanma amacıyla çıkardığı senettir. Sabit faiz öder, vadesi vardır.",
+    "dolar": "ABD Doları (USD), dünya rezerv para birimidir. Petrol ticareti gibi işlemlerin çoğu USD ile yapılır.",
+    "euro": "Euro (EUR), Avrupa Birliği'nin ortak para birimidir (1999). 20 AB ülkesinde resmi para birimidir.",
+    "türk lirası": "Türk Lirası (TRY, ₺), Türkiye'nin resmi para birimidir. 2005'te 6 sıfır atılarak YTL'ye dönüştü.",
+    "kripto para": "Kripto para, blokzincir tabanlı, merkezi olmayan dijital paradır. Bitcoin ilk örnektir. Şifreleme ile güvenliği sağlanır.",
+    "arz talep": "Arz-talep kanunu: bir malın talebi artarsa fiyatı yükselir, arzı artarsa fiyatı düşer. Piyasa dengesi kesişimde oluşur.",
+    "monopol": "Tekel (monopol), piyasada tek satıcının bulunduğu yapıdır. Fiyat üzerinde gücü vardır; rekabet yoktur.",
+    "rekabet": "Rekabet, firmaların müşteri kazanmak için fiyat ve kalitede yarışmasıdır. Tüketici lehinedir, tekelci uygulamalar yasaktır.",
+    "vergi": "Vergi, devletin kamu hizmetlerini finanse etmek için birey ve kurumlardan zorunlu aldığı paradır. Dolaylı (KDV) ve dolaysız (gelir) vergiler ayrılır.",
+    "kdv": "KDV (Katma Değer Vergisi), mal ve hizmetin her aşamasında eklenen değere konan dolaylı vergidir. Türkiye'de %1, %10, %20 gibi oranları vardır.",
+    "gsmh": "GSMH (Gayri Safi Milli Hasıla), bir ülke vatandaşlarının (yurt içi ve dışı) ürettiği toplam değerdir. GSYİH'tan farklı olarak yurt dışı gelirleri içerir.",
+    "bütçe": "Bütçe, devletin gelir ve gider planıdır. Açık veren bütçe borçlanmayı gerektirir. Fazla veren bütçe birikim yaratır."
+}

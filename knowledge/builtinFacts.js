@@ -1,0 +1,96 @@
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+
+const builtin = {
+    "jarvis": {
+        text: "Ben Jarvis. Senin kişisel AI asistanınım. Tamamen bu cihazda, kendi motorumla çalışıyorum — dış API ya da internet gerekmez. Sohbet edebilir, araştırma yapabilir, hesaplayabilir, hatırlayabilir ve yeni şeyler öğrenebilirim.",
+        type: "self"
+    },
+    "sen nesin": {
+        text: "Jarvis adında kişisel bir AI asistanım. Kendi yerel motorumla çalışıyorum.",
+        type: "self"
+    },
+    "adın ne": {
+        text: "Adım Jarvis.",
+        type: "self"
+    },
+    "nasılsın": {
+        text: "İyiyim, teşekkür ederim! Sana nasıl yardımcı olabilirim?",
+        type: "self"
+    },
+    "merhaba": {
+        text: "Merhaba! Ben Jarvis. Bugün sana nasıl yardımcı olabilirim?",
+        type: "self"
+    },
+    "selam": {
+        text: "Selam! Ne yapalım?",
+        type: "self"
+    },
+    "teşekkür": {
+        text: "Rica ederim! Başka bir şey istersen buradayım.",
+        type: "self"
+    },
+    "saat kaç": {
+        text: "__TIME__",
+        type: "function"
+    },
+    "bugün günlerden ne": {
+        text: "__DATE__",
+        type: "function"
+    },
+    "tarih ne": {
+        text: "__DATE__",
+        type: "function"
+    },
+    "pi sayısı": {
+        text: "Pi sayısı (π) yaklaşık 3.14159'dur. Bir dairenin çevresinin çapına oranıdır.",
+        type: "fact"
+    },
+    "ışık hızı": {
+        text: "Işık hızı boşlukta yaklaşık 299.792.458 m/s (yaklaşık 300.000 km/s). Evrendeki bilinen en yüksek hızdır.",
+        type: "fact"
+    },
+    "yerçekimi": {
+        text: "Yerçekimi, kütleli cisimlerin birbirini çekmesine neden olan temel kuvvettir. Dünya yüzeyinde ivmesi yaklaşık 9.81 m/s²'dir.",
+        type: "fact"
+    },
+    "türkiye başkenti": {
+        text: "Türkiye'nin başkenti Ankara'dır.",
+        type: "fact"
+    },
+    "bitcoin": {
+        text: "Bitcoin, 2009'da Satoshi Nakamoto tarafından oluşturulan merkeziyetsiz bir dijital para birimidir. Blokzincir teknolojisini kullanır ve toplam arzı 21 milyon ile sınırlıdır.",
+        type: "fact"
+    },
+    "yapay zeka": {
+        text: "Yapay zeka (AI), makinelerin insan benzeri öğrenme, akıl yürütme ve problem çözme yetenekleri sergilemesini sağlayan bilgisayar bilimi dalıdır.",
+        type: "fact"
+    },
+    "node js": {
+        text: "Node.js, Chrome'un V8 motoru üzerine kurulu, JavaScript'i sunucu tarafında çalıştıran bir platformdur. Olay güdümlü ve asenkron yapısıyla yüksek performans sağlar.",
+        type: "fact"
+    },
+    "javascript": {
+        text: "JavaScript, web tarayıcılarında ve sunucularda (Node.js ile) çalışan, dinamik ve çok-paradigmalı bir programlama dilidir.",
+        type: "fact"
+    },
+    "python": {
+        text: "Python, okunabilirliği ve sadeliğiyle bilinen, genel amaçlı üst düzey bir programlama dilidir. Veri bilimi, web ve otomasyonda yaygın kullanılır.",
+        type: "fact"
+    }
+};
+
+function install(dir) {
+    const file = path.join(dir, "facts.json");
+    try {
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(file, JSON.stringify(builtin, null, 2));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+module.exports = { builtin, install };

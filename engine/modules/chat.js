@@ -2,9 +2,9 @@
 
 class Chat{
 
-    async run(engine,prompt){
+    async run(engine,prompt,context){
 
-        return await engine.ai.ask(prompt);
+        return await engine.ai.ask(prompt,context);
 
     }
 

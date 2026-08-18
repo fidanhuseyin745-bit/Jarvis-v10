@@ -14,12 +14,18 @@ class DecisionEngine{
             phone:0,
             coding:0,
             explain:0,
-            compare:0
+            compare:0,
+            research:0
         };
 
         let intent="chat";
 
         const has=(...words)=>words.some(w=>prompt.includes(w));
+
+        if(has("araştır","research","incele","analiz et")){
+            score.research+=130;
+            intent="research";
+        }
 
         if(has("nedir","nasıl","neden","niye","kim","hangi","kaç","ne zaman","anlat","açıkla")){
             score.web+=70;
@@ -46,6 +52,27 @@ class DecisionEngine{
         if(has("telefon","android","youtube","uygulama","chrome")){
             score.phone+=120;
             intent="phone";
+        }
+
+        if(has("github","repo","repository","issue","pull request","pr ")){
+            score.phone+=0;
+            intent="coding";
+            score.coding+=120;
+        }
+
+        if(has("kod yaz","kod oluştur","kod olustur","express","rest api","http server","html sayfa","cli araç","cli arac")){
+            score.coding+=150;
+            intent="coding";
+        }
+
+        if(has("modül ekle","modul ekle","yeni modül","modül sil","modul sil")){
+            score.coding+=150;
+            intent="coding";
+        }
+
+        if(has("terminal","komut çalıştır","komut calistir","kabuk","shell")){
+            score.coding+=150;
+            intent="coding";
         }
 
         if(has("node","javascript","python","kod","github","debug","hata")){
