@@ -54,6 +54,27 @@ class DecisionEngine{
             intent="phone";
         }
 
+        if(has("github","repo","repository","issue","pull request","pr ")){
+            score.phone+=0;
+            intent="coding";
+            score.coding+=120;
+        }
+
+        if(has("kod yaz","kod oluştur","kod olustur","express","rest api","http server","html sayfa","cli araç","cli arac")){
+            score.coding+=150;
+            intent="coding";
+        }
+
+        if(has("modül ekle","modul ekle","yeni modül","modül sil","modul sil")){
+            score.coding+=150;
+            intent="coding";
+        }
+
+        if(has("terminal","komut çalıştır","komut calistir","kabuk","shell")){
+            score.coding+=150;
+            intent="coding";
+        }
+
         if(has("node","javascript","python","kod","github","debug","hata")){
             score.coding+=120;
             intent="coding";

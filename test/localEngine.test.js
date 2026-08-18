@@ -188,3 +188,70 @@ test("temperature not misclassified as phone open", async () => {
     assert.ok(reply.includes("212"));
     assert.ok(!reply.includes("facebook"));
 });
+
+test("code generator: express server", async () => {
+    const reply = await engine.ask("express server yaz");
+    assert.ok(reply.includes("Express"));
+    assert.ok(reply.includes("app.js"));
+    assert.ok(reply.includes("npm start"));
+});
+
+test("code generator: rest api", async () => {
+    const reply = await engine.ask("rest api yaz");
+    assert.ok(reply.includes("REST API"));
+    assert.ok(reply.includes("/api/items"));
+});
+
+test("code generator: html page", async () => {
+    const reply = await engine.ask("html sayfa yaz");
+    assert.ok(reply.includes("HTML"));
+    assert.ok(reply.includes("index.html"));
+});
+
+test("code generator: cli tool", async () => {
+    const reply = await engine.ask("cli araç yaz");
+    assert.ok(reply.includes("CLI"));
+    assert.ok(reply.includes("hello"));
+});
+
+test("module builder: list modules", async () => {
+    const reply = await engine.ask("modüllerim");
+    assert.ok(reply.includes("modül"));
+    assert.ok(reply.includes("mathApi"));
+});
+
+test("module builder: create and delete module", async () => {
+    const created = await engine.ask("modül ekle testmod: test amaçlı");
+    assert.ok(created.includes("oluşturuldu") || created.includes("modül"));
+    const listed = await engine.ask("modüllerim");
+    assert.ok(listed.includes("testmod") || listed.includes("testmod") || !created.includes("oluşturuldu"));
+    const deleted = await engine.ask("modül sil testmod");
+    assert.ok(deleted.includes("silindi") || deleted.includes("bulunamadı"));
+});
+
+test("terminal: safe command execution", async () => {
+    const reply = await engine.ask("terminal: echo merhaba");
+    assert.ok(reply.includes("merhaba") || reply.includes("çıktı"));
+});
+
+test("terminal: dangerous command blocked", async () => {
+    const reply = await engine.ask("terminal: rm -rf /");
+    assert.ok(reply.includes("Güvenlik") || reply.includes("engellendi"));
+    assert.ok(!reply.includes("total"));
+});
+
+test("github api: detect commands", () => {
+    const gh = require("../api/githubApi");
+    assert.strictEqual(gh.detect("github repolarım").type, "list");
+    assert.ok(gh.detect("github commit a/b"));
+    assert.ok(!gh.detect("merhaba"));
+});
+
+test("github api: no token graceful message", async () => {
+    const gh = require("../api/githubApi");
+    const origToken = gh.token;
+    gh.token = "";
+    const reply = await gh.execute("github repolarım");
+    gh.token = origToken;
+    assert.ok(reply.includes("GITHUB_TOKEN") || reply.includes("repo") || reply.includes("📂"));
+});

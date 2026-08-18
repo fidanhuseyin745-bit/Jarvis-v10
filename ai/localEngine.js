@@ -11,6 +11,11 @@ const phoneApi = require("../api/phoneApi");
 const wikiApi = require("../api/wikiApi");
 const weatherApi = require("../api/weatherApi");
 const newsApi = require("../api/newsApi");
+const marketApi = require("../api/marketApi");
+const githubApi = require("../api/githubApi");
+const codeGenApi = require("../api/codeGenApi");
+const moduleBuilder = require("../api/moduleBuilder");
+const terminalApi = require("../api/terminalApi");
 
 class LocalEngine {
 
@@ -29,6 +34,18 @@ class LocalEngine {
         if (!text) {
             return "Bir şey yazmadın.";
         }
+
+        const githubResult = await githubApi.execute(text);
+        if (githubResult) return githubResult;
+
+        const moduleResult = moduleBuilder.execute(text);
+        if (moduleResult) return moduleResult;
+
+        const codeResult = await codeGenApi.execute(text);
+        if (codeResult) return codeResult;
+
+        const termResult = await terminalApi.execute(text);
+        if (termResult) return termResult;
 
         const phoneResult = await phoneApi.execute(text);
         if (phoneResult && !this._looksLikeOtherQuery(lower)) return phoneResult;
@@ -378,10 +395,16 @@ class LocalEngine {
             "🌐 Çıkarım — 'türkiyenin başkenti', 'japonyanın para birimi'",
             "📱 Telefon — 'youtube aç', '0555 123 45 67 ara', 'wifi kapat', 'el feneri aç', 'müzik aç', 'alarm kur'",
             "🌍 İnternet — 'einstein araştır', 'istanbul hava durumu', 'bugün haberler var mı'",
+            "📈 Piyasa — 'bitcoin fiyatı', 'ethereum kaç dolar'",
+            "💻 Kod yazma — 'express server yaz', 'rest api yaz', 'html sayfa yaz', 'cli araç yaz'",
+            "📦 GitHub — 'github repolarım', 'github commit kullanıcı/repo', 'github issue <repo>'",
+            "🧩 Modül ekleme — 'modül ekle <isim>: açıklama' ile yeni yetenek oluştururum",
+            "⌨️ Terminal — 'terminal: ls -la', 'komut çalıştır: git status' (güvenli komutlar)",
             "🧠 Öğrenme — 'öğret: ...' ile bilgi verir, sayı/içerik cümlelerini otomatik not alırım",
             "🗑️ Unutma — 'unut' ile öğrendiklerimi temizlerim",
             "",
             "Telefon komutları için Jarvis companion uygulaması (bridge) gereklidir.",
+            "GitHub için GITHUB_TOKEN ayarlı olmalı.",
             "Hafızam var, geçmiş konuşmalarımızı hatırlıyorum."
         ];
         return lines.join("\n");
