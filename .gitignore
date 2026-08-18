@@ -18,6 +18,15 @@ knowledge/data/learned.json
 
 # Backup / eski sürümler
 *.bak
+
+# Kod üretici çıktıları
+generated/
+
+# Modül oluşturucu registry'si (çalışma zamanı)
+api/moduleRegistry.json
+
+# Geçici agent dosyaları
+.agents_tmp/
 *.bak*
 *.v1
 *.v2

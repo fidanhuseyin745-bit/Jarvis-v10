@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "fix/**", "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Syntax check
+        run: |
+          find . -path ./node_modules -prune -o -name "*.js" -print | \
+            xargs -I{} node --check {}
+
+      - name: Run tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm test
+
+  smoke-test:
+    name: Smoke Test (CLI startup)
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install knowledge base
+        run: node -e "require('./knowledge/builtinFacts').install('./knowledge/data');"
+
+      - name: Verify CLI starts and responds
+        run: |
+          printf 'saat kaç\nexit\n' | timeout 15 node index.js > smoke.log 2>&1 || true
+          echo "--- smoke output ---"
+          cat smoke.log
+          grep -q "Jarvis" smoke.log || (echo "Smoke test failed: Jarvis did not start" && exit 1)
