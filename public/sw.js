@@ -1,10 +1,11 @@
 /* JARVIS Service Worker — HUD kabuğunu önbelleğe alır (offline destek) */
-const CACHE = "jarvis-v10-v1";
+const CACHE = "jarvis-v10-v2";
 const SHELL = [
   "/",
   "/index.html",
   "/css/jarvis.css",
   "/js/hud.js",
+  "/js/engine.js",
   "/js/app.js",
   "/manifest.json",
   "/icons/jarvis.svg",

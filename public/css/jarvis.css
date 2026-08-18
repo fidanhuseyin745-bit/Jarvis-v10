@@ -104,6 +104,7 @@ body::after {
 }
 .panel.left  { left: 30px; }
 .panel.right { right: 30px; }
+.panel.server { right: 30px; top: 70px; bottom: auto; width: 280px; max-height: 220px; overflow: auto; }
 
 .panel h3 {
   font-size: 12px;
@@ -113,6 +114,33 @@ body::after {
   border-bottom: 1px solid rgba(255, 204, 0, 0.25);
   padding-bottom: 6px;
 }
+
+#serverBox input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 204, 0, 0.4);
+  color: #ffcc00;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+#serverBox input::placeholder { color: rgba(255, 204, 0, 0.4); }
+#serverSave {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #ffcc00;
+  color: #050a12;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+#serverSave:active { opacity: 0.85; }
 
 .skill-list { list-style: none; font-size: 12px; }
 .skill-list li {
@@ -208,6 +236,7 @@ body::after {
   }
   .panel.open { display: block; }
   .panel.right { left: 10px; }
+  .panel.server { left: 10px; right: 10px; top: 56px; bottom: auto; max-height: 60vh; }
 
   /* köşe çerçeveleri mobilde küçük */
   .corner { width: 36px; height: 36px; }
