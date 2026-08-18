@@ -2,7 +2,7 @@
 
 module.exports={
 
-VERSION:'6.0',
+VERSION:'10.0',
 
 NAME:'Jarvis',
 

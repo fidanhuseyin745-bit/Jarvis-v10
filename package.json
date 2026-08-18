@@ -1,17 +1,52 @@
 {
-  "name": "jarvis-v7",
+  "name": "jarvis-v10",
   "version": "1.0.0",
-  "description": "",
+  "description": "Jarvis - yapay zeka destekli asistan (AI + REST API + skill kütüphanesi)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "serve": "node webserver/index.js",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "syntax": "node scripts/syntax-check.js",
+    "lint": "node scripts/syntax-check.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "jarvis",
+    "ai",
+    "assistant",
+    "cli",
+    "api",
+    "rest"
+  ],
+  "author": "Hüseyin",
+  "license": "MIT",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "axios": "^1.19.0",
-    "dotenv": "^17.4.2"
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "skills/**/*.js",
+      "ai/**/*.js",
+      "engine/**/*.js",
+      "core/**/*.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/projects/"
+    ]
   }
 }

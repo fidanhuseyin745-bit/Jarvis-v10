@@ -1,3 +1,0 @@
-# Jarvis Project
-
-Created automatically.

@@ -17,3 +17,8 @@ projects/*/.git/
 *.v2
 *.v3
 *.v4
+
+# Test ile oluşturulan / runtime veriler
+projects/
+memory/reminders.json
+

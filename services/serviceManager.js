@@ -1,76 +1,53 @@
 "use strict";
 
-const { spawn, execSync } = require("child_process");
+const { spawn } = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
-class ServiceManager{
+class ServiceManager {
 
-    isRunning(port){
-
-        try{
-
-            execSync(`curl -s http://127.0.0.1:${port}`);
-
+    isRunning(port) {
+        try {
+            require("child_process").execSync("curl -s -o /dev/null http://127.0.0.1:" + port, { stdio: "ignore" });
             return true;
-
-        }catch{
-
+        } catch {
             return false;
-
         }
-
     }
 
-    start(name,dir,file,port){
-
-        if(this.isRunning(port)){
-
-            console.log("✅ "+name+" zaten çalışıyor.");
+    start(name, dir, file, port) {
+        if (this.isRunning(port)) {
+            console.log("✅ " + name + " zaten çalışıyor.");
             return;
-
         }
 
-        if(!fs.existsSync(dir+"/"+file)){
-
-            console.log("❌ "+name+" bulunamadı.");
+        const entry = path.join(dir, file);
+        if (!fs.existsSync(entry)) {
+            console.log("ℹ️ " + name + " bulunamadı (" + entry + "), atlanıyor.");
             return;
-
         }
 
-        console.log("🚀 "+name+" başlatılıyor...");
+        console.log("🚀 " + name + " başlatılıyor (port " + port + ")...");
 
-        const child=spawn("node",[file],{
-
-            cwd:dir,
-            detached:true,
-            stdio:"ignore"
-
+        const child = spawn("node", [entry], {
+            cwd: dir,
+            detached: true,
+            stdio: "ignore",
+            env: Object.assign({}, process.env, { PORT: String(port) })
         });
 
         child.unref();
-
     }
 
-    boot(){
-
-        this.start(
-            "Web API",
-            process.env.HOME+"/Jarvis-v6/webserver",
-            "index.js",
-            3000
-        );
-
-        this.start(
-            "AI API",
-            process.env.HOME+"/Jarvis-AI",
-            "server.js",
-            9000
-        );
-
+    /**
+     * Jarvis'in kendi REST API sunucusunu (varsa) başlatır.
+     * Üretimde opsiyonel — cli için zorunlu değil.
+     */
+    boot() {
+        const root = path.join(__dirname, "..");
+        this.start("Jarvis REST API", path.join(root, "webserver"), "index.js", process.env.JARVIS_PORT || 3000);
         console.log("✅ Servis kontrolü tamamlandı.");
-
     }
-
 }
 
-module.exports=new ServiceManager();
+module.exports = new ServiceManager();

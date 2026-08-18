@@ -1,28 +1,22 @@
 "use strict";
 
-const ai=require("../ai/aiManager");
+const cryptoSkill = require("./cryptoSkill");
+const currencySkill = require("./currencySkill");
 
-module.exports={
+/**
+ * MarketSkill — finansal istekleri crypto/currency
+ * skill'lerine yönlendirir (AI'a bağımlılık yok).
+ */
+module.exports = {
+    name: "Market",
 
-    name:"Market",
-
-    match(text){
-
-        return text.includes("bitcoin")
-            ||text.includes("borsa")
-            ||text.includes("altın")
-            ||text.includes("dolar")
-            ||text.includes("euro")
-            ||text.includes("kripto");
-
+    match(text) {
+        return cryptoSkill.match(text) || currencySkill.match(text);
     },
 
-    async run(input){
-
-        return await ai.ask(
-            "Finans uzmanı gibi cevap ver.\n\n"+input
-        );
-
+    async run(input) {
+        if (cryptoSkill.match(input)) return await cryptoSkill.run(input);
+        if (currencySkill.match(input)) return await currencySkill.run(input);
+        return "Finans bilgi bulunamadı.";
     }
-
 };

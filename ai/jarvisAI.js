@@ -3,16 +3,24 @@
 const axios = require("axios");
 const config = require("../config/aiConfig");
 
+const SYSTEM_PROMPT = require("../engine/prompt");
+
+/**
+ * OpenAI uyumlu /chat/completions uç noktalarını destekler.
+ * Tek seferlik `ask` ve çok mesajlı `chat` arayüzü sunar.
+ * AI uç noktası tanımlı değilse anlamlı bir hata döner,
+ * böylece üst katman (aiManager) zarif biçimde geri düşebilir.
+ */
 class JarvisAI {
 
-    async ask(prompt) {
+    isConfigured() {
+        return Boolean(config.url);
+    }
 
-        if (!config.url) {
+    async chat(messages, options = {}) {
 
-            throw new Error(
-                "AI_API_URL tanımlı değil."
-            );
-
+        if (!this.isConfigured()) {
+            throw new Error("AI uç noktası tanımlı değil (AI_API_URL/AI_URL).");
         }
 
         const headers = {
@@ -20,32 +28,34 @@ class JarvisAI {
         };
 
         if (config.key) {
-            headers.Authorization =
-                `Bearer ${config.key}`;
+            headers.Authorization = `Bearer ${config.key}`;
         }
 
-        const res = await axios.post(
-            config.url,
-            {
-                model: config.model,
-                messages: [
-                    {
-                        role: "user",
-                        content: String(prompt || "")
-                    }
-                ]
-            },
-            {
-                headers,
-                timeout: 60000
-            }
-        );
+        const payload = {
+            model: options.model || config.model || "jarvis-chat",
+            messages,
+            stream: false
+        };
 
-        return (
-            res.data?.choices?.[0]?.message?.content ||
-            ""
-        );
+        if (options.max_tokens) payload.max_tokens = options.max_tokens;
+        if (options.temperature !== undefined) payload.temperature = options.temperature;
 
+        const res = await axios.post(config.url, payload, {
+            headers,
+            timeout: options.timeout || 60000
+        });
+
+        return res.data?.choices?.[0]?.message?.content || "";
+    }
+
+    async ask(prompt, options = {}) {
+
+        const messages = [
+            { role: "system", content: String(SYSTEM_PROMPT).trim() },
+            { role: "user", content: String(prompt || "") }
+        ];
+
+        return await this.chat(messages, options);
     }
 
 }
