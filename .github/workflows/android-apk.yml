@@ -57,37 +57,7 @@ jobs:
           npx cap sync android
 
       - name: Kotlin çakışması için build.gradle yaması
-        run: |
-          # app/build.gradle içine kotlin sürüm zorlaması + packaging exclude ekle
-          GRA="android/app/build.gradle"
-          if [ -f "$GRA" ]; then
-            python3 - <<'PY'
-            import re, io
-            p = "android/app/build.gradle"
-            s = open(p).read()
-            inj = """
-            configurations.all {
-                resolutionStrategy {
-                    force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-                    force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
-                    force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-                }
-            }
-            android {
-                packagingOptions {
-                    exclude 'META-INF/INDEX.LIST'
-                    exclude 'META-INF/io.netty.versions.properties'
-                }
-            }
-            """
-            if "resolutionStrategy" not in s:
-                s = s.rstrip() + "\n" + inj + "\n"
-                open(p, "w").write(s)
-                print("build.gradle yamalandı")
-            else:
-                print("build.gradle zaten yamalı")
-            PY
-          fi
+        run: bash scripts/android-gradle-patch.sh
 
       - name: gradle izinleri
         run: chmod +x android/gradlew
